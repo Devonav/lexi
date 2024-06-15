@@ -1,22 +1,8 @@
-const max = 99999, min = 1, avg = 100000;
-/* Proper comment */
-var longIdentifierName, a, b;
-/* This is another comment */
-procedure example;
-begin
-    longIdentifierName := max + min / (a - b * avg);
-    call example;
-    if a <> b then
-        a := a + 12345
-    else
-        a := b - 54321;
-    while a >= 0 do
-        a := a + 1;
-    read 1234 abcdefghijkl;
-    write 123456;
-end.
-/* unterminated comment
+var x8x8x8x, y;
 : =
-><<<>
-x8x8x8
-identifierWithTooManyCharacters := 10;
+><<><>>
+/*some content
+/ *not a comment*/
+var abcdefghijklmnop;
+x := 123456;
+x := y @ 2;

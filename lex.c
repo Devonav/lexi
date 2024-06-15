@@ -3,10 +3,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#define MAX_IDENT_LEN 11
-#define MAX_NUM_LEN 5
-#define MAX_LEXEMES 1000
+#define MAX_IDENT_LEN 11    // Maximum length of an identifier
+#define MAX_NUM_LEN 5       // Maximum length of a number
+#define MAX_LEXEMES 1000    // Maximum number of lexemes
 
+// Enum for token types
 typedef enum {
     skipsym = 1, identsym, numbersym, plussym, minussym,
     multsym, slashsym, fisym, eqlsym, neqsym, lessym, leqsym,
@@ -16,25 +17,30 @@ typedef enum {
     readsym, elsesym, errorsym
 } token_type;
 
+// Structure for a lexeme
 typedef struct {
-    char lexeme[MAX_IDENT_LEN + 1];
-    token_type token;
-    char error[50];
+    char lexeme[MAX_IDENT_LEN + 1];  // The lexeme string
+    token_type token;                // Token type
+    char error[50];                  // Error message if any
 } Lexeme;
 
+// Array of lexemes
 Lexeme lexemes[MAX_LEXEMES];
-int lexeme_count = 0;
+int lexeme_count = 0;    // Count of lexemes
 
+// Array of reserved words
 char *reservedWords[] = {
     "const", "var", "procedure", "call", "begin", "end", "if", "fi",
     "then", "else", "while", "do", "read", "write"
 };
 
+// Array of corresponding token types for reserved words
 token_type reservedTokens[] = {
     constsym, varsym, procsym, callsym, beginsym, endsym, ifsym, fisym,
     thensym, elsesym, whilesym, dosym, readsym, writesym
 };
 
+// Function to add a lexeme to the lexeme array
 void addLexeme(char *lex, token_type token, char *error) {
     if (lexeme_count < MAX_LEXEMES) {
         strcpy(lexemes[lexeme_count].lexeme, lex);
@@ -48,6 +54,7 @@ void addLexeme(char *lex, token_type token, char *error) {
     }
 }
 
+// Function to identify if a word is a reserved word
 token_type identifyReservedWord(char *word) {
     for (int i = 0; i < sizeof(reservedWords) / sizeof(reservedWords[0]); i++) {
         if (strcmp(word, reservedWords[i]) == 0) {
@@ -57,18 +64,20 @@ token_type identifyReservedWord(char *word) {
     return identsym;
 }
 
+// Function to print the lexeme table
 void printLexemeTable() {
     printf("Lexeme Table:\n\n");
-    printf("lexeme\ttoken type\n");
+    printf("%-20s%-10s\n", "lexeme", "token type");
     for (int i = 0; i < lexeme_count; i++) {
-        printf("%s\t%d", lexemes[i].lexeme, lexemes[i].token);
+        printf("%-20s%-10d", lexemes[i].lexeme, lexemes[i].token);
         if (lexemes[i].error[0] != '\0') {
-            printf("\tError: %s", lexemes[i].error);
+            printf(" Error: %s", lexemes[i].error);
         }
         printf("\n");
     }
 }
 
+// Function to print the token list
 void printTokenList() {
     printf("Token List:\n");
     for (int i = 0; i < lexeme_count; i++) {
@@ -83,6 +92,7 @@ void printTokenList() {
     printf("\n");
 }
 
+// Function to process the input string and generate lexemes
 void processInput(const char *input) {
     int length = strlen(input);
     char buffer[MAX_IDENT_LEN + 1];
@@ -102,7 +112,7 @@ void processInput(const char *input) {
             buffer[buffer_index] = '\0';
             if (isalnum(c)) {  // Name too long
                 while (isalnum(c)) c = input[++i];
-                addLexeme(buffer, errorsym, "name too long");
+                addLexeme(buffer, errorsym, "Name too long");
             } else {
                 token_type token = identifyReservedWord(buffer);
                 addLexeme(buffer, token, NULL);
@@ -117,7 +127,7 @@ void processInput(const char *input) {
             buffer[buffer_index] = '\0';
             if (isdigit(c)) {  // Number too long
                 while (isdigit(c)) c = input[++i];
-                addLexeme(buffer, errorsym, "number too long");
+                addLexeme(buffer, errorsym, "Number too long");
             } else {
                 addLexeme(buffer, numbersym, NULL);
             }
@@ -138,7 +148,7 @@ void processInput(const char *input) {
                         if (i < length - 1) {
                             i++;  // Skip '*/'
                         } else {
-                            addLexeme("/*", errorsym, "unterminated comment");
+                            addLexeme("/*", errorsym, "Unterminated comment");
                         }
                     } else {
                         addLexeme(buffer, slashsym, NULL);
@@ -177,7 +187,7 @@ void processInput(const char *input) {
                         addLexeme(buffer, becomessym, NULL);
                         i++;
                     } else {
-                        addLexeme(buffer, errorsym, "invalid character");
+                        addLexeme(buffer, errorsym, "Invalid character");
                     }
                     break;
                 case ';': addLexeme(buffer, semicolonsym, NULL); break;
@@ -186,13 +196,14 @@ void processInput(const char *input) {
                 case '(': addLexeme(buffer, lparentsym, NULL); break;
                 case ')': addLexeme(buffer, rparentsym, NULL); break;
                 default:
-                    addLexeme(buffer, errorsym, "invalid character");
+                    addLexeme(buffer, errorsym, "Invalid character");
                     break;
             }
         }
     }
 }
 
+// Function to read input from a file
 void readInputFile(const char *filename, char *buffer, int size) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -209,22 +220,23 @@ void readInputFile(const char *filename, char *buffer, int size) {
     fclose(file);
 }
 
+// Main function
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
-    const int bufferSize = 10000;
+    const int bufferSize = 10000;  // Buffer size for input
     char input[bufferSize];
 
-    readInputFile(argv[1], input, bufferSize);
+    readInputFile(argv[1], input, bufferSize);  // Read input from file
 
     printf("Source Program:\n%s\n", input);
 
-    processInput(input);
-    printLexemeTable();
-    printTokenList();
+    processInput(input);  // Process the input to generate lexemes
+    printLexemeTable();   // Print the lexeme table
+    printTokenList();     // Print the token list
 
     return 0;
 }
